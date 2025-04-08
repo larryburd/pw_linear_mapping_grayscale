@@ -43,31 +43,42 @@ integer, for the piecewise linear mapping.")
   
 def piecewise_func(args):
   filepath = args[1]
-  lower_limit = 10 + int(args[2])
-  upper_limit = int(args[3]) - 10
-
+  lower_limit = int(args[2])
+  # Remove 15 if upper limit is above 240 to ensure no overflows occur
+  upper_limit = int(args[3]) - 15 if args[3] > 240 else args[3]
   im1 = cv.imread(filepath)
   im2 = cv.cvtColor(im1, cv.COLOR_BGR2GRAY)
 
+  # Get the vertical and horizontal pixel count of the original image
   row = im1.shape[0]
   col = im1.shape[1]
 
+  # Create an "empty" image of all zeros with the same
+  # dimensions as the original
   im3 = np.zeros((row,col), np.uint8)
 
   for i in range(row):
     for j in range(col):
       pixel = im2[i,j]
 
+      # For each pixel in the gray scale image
+      # add 15 if the value is less than upper limit
+      # and lower than the lower limt. Then add
+      # it to the new output image, otherwise
+      # add the pixel with no transformation
       if pixel <= lower_limit or pixel >= upper_limit:
         im3[i,j] = pixel
       else:
         im3[i,j] = pixel + 15
   
-  cv.imshow("original", im2)
+  # Show original gray scale image and the transformed image
+  cv.imshow("Original Image as Gray Scale", im2)
   cv.imshow("After Linear Transformation", im3)
 
   cv.waitKey(0)
   cv.destroyAllWindows()
+
+#TODO create function to map piecewise function
 
 
 def main():
