@@ -3,49 +3,59 @@
 # Date: 20250407
 # Class: Digital Image Processing
 # Professor: Dr. Roya Choupani
+# Purpose: To apply a piecewise linear function given a
+#           filepath to a photo, a lower limit, and
+#           an upper limit.  The program can be run by
+#           providing all 3 arguments up activation, or
+#           through a guided mode by using zero arguments
 ##########################################################
 
 import sys
 import os.path
+from enum import Enum
 import cv2 as cv
 import numpy as np
 
-# Check that arguments conform to the 
-# needed requirements and exit if they don't.
-# TODO: Add interactive mode to get arguments if app is run with none.
-def check_args(args):
-  # Return an error if number of args is not exactly 3
-  n = len(args) #Number of arguments passed in
+# REGION: Helper functions
+# Enum for argument types
+class checkType:
+  PATH = 1
+  UPPERLIM = 2
+  LOWERLIM = 3
 
-  if n != 4:
-    print("\nThe program expects exactly 3 arguments.\nArg 1: The path to \
-the image for processing.\nArg 2: The lower limit, as an integer,\
-for the piecewise linear mapping.\nArg 3: The lower upper limit, as an\
-integer, for the piecewise linear mapping.")
-    print("Number of args: ", n)
-    exit()
+# Returns a truthy value based on if the input is a valid file path
+def check_is_path(p):
+  return os.path.isfile(p)
 
-  # Check first (second in array) argument for being a valid path
-  is_path = os.path.isfile(args[1])
-  
-  if not is_path:
-    print("\nThe provided filepath is not valid.")
-    exit()
-
-  # check that args 3 and 4 are integers
-  # Cast to integer, because args are passed in as strings
+# Returns true if input is an integer
+def check_is_int(i):
   try:
-    arg2 = int(args[2]) + 1
-    arg3 = int(args[3]) + 1
+    int(i) + 1
+    return True 
   except:
-    print("\nThe limits of the function are not valid integers.")
-    exit()
+    return False
+
+# Outputs error message if the incorrect input
+# is not 'q' or 'Q'. Exits if the input is 'q' or 'Q' 
+def check_for_exit(s, CHECK_TYPE):
+  if CHECK_TYPE == checkType.PATH:
+    text_insert = "filepath"
+  elif CHECK_TYPE == checkType.LOWERLIM or CHECK_TYPE == checkType.UPPERLIM:
+    text_insert = "integer"
   
+  if s == 'q' or s == 'Q':
+    exit()
+  else:
+    print("Invalid ", text_insert, " Entered.  Please enter a valid ", text_insert, " or enter 'q' to quit.")
+    return
+  
+# Function to apply the piecewise linear function to the given image
 def piecewise_func(args):
-  filepath = args[1]
-  lower_limit = int(args[2])
+  print("args: ", args)
+  filepath = args[0]
+  lower_limit = args[1]
   # Remove 15 if upper limit is above 240 to ensure no overflows occur
-  upper_limit = int(args[3]) - 15 if args[3] > 240 else args[3]
+  upper_limit = args[2] - 15 if args[2] > 240 else args[2]
   im1 = cv.imread(filepath)
   im2 = cv.cvtColor(im1, cv.COLOR_BGR2GRAY)
 
@@ -80,10 +90,72 @@ def piecewise_func(args):
 
 #TODO create function to map piecewise function
 
+# Interactive mode to get arguments if app is run with none.
+# Each input is validated before passing the arguments to the piecewise func.
+def guided_args():
+  args = []
+  
+  # Get a valid filepath from the user
+  while True:
+    filepath = input("Enter the path to the desired image: ")
+    if check_is_path(filepath):
+      args.append(filepath)
+      break
+    else:
+      check_for_exit(filepath, checkType.PATH)
+      
+  
+  # Get the lower limit integer
+  while True:
+    lower_lim = input("Enter an integer for the lower limit: ")
+    if check_is_int(lower_lim):
+      args.append(int(lower_lim))
+      break
+    else:
+      check_for_exit(lower_lim, checkType.LOWERLIM)
+
+  # Get the upper limit integer
+  while True:
+    upper_lim = input("Enter an integer for the upper limit: ")
+    if check_is_int(upper_lim):
+      args.append(int(upper_lim))
+      break
+    else:
+      check_for_exit(upper_lim, checkType.UPPERLIM)
+  
+  piecewise_func(args)
+
+# Check that arguments conform to the 
+# needed requirements and exit if they don't.
+def inline_args_mode(args):
+  # Check first (second in array) argument for being a valid path
+  if not check_is_path(args[1]):
+    print(args)
+    print("\nThe provided filepath is not valid.")
+    exit()
+
+  # check that args 3 and 4 are integers
+  if check_is_int(args[2]) and check_is_int(args[3]):
+    args = [args[1], int(args[2]), int(args[3])]
+    piecewise_func(args)
+  else:
+    print("\nThe limits of the function are not valid integers.")
+    exit()
 
 def main():
   args = sys.argv
-  check_args(args)
-  piecewise_func(args)
+  num_args = len(args)
+
+  if num_args == 4:
+    inline_args_mode(args)
+  elif num_args == 1:
+    guided_args()
+  else:
+    print("\nThe program expects exactly 0 or 3 arguments.", \
+    "\nNo arguments will start guided use.\nArg 1: The path to", \
+    " the image for processing.\nArg 2: The lower limit, as an integer," \
+    " for the piecewise linear mapping.", \
+      "\nArg 3: The upper limit, as an integer, for the piecewise linear mapping.")
+    exit()
 
 main()
