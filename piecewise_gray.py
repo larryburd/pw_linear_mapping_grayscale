@@ -51,7 +51,6 @@ def check_for_exit(s, CHECK_TYPE):
   
 # Function to apply the piecewise linear function to the given image
 def piecewise_func(args):
-  print("args: ", args)
   filepath = args[0]
   lower_limit = args[1]
   # Remove 15 if upper limit is above 240 to ensure no overflows occur
@@ -72,10 +71,9 @@ def piecewise_func(args):
       pixel = im2[i,j]
 
       # For each pixel in the gray scale image
-      # add 15 if the value is less than upper limit
-      # and lower than the lower limt. Then add
-      # it to the new output image, otherwise
-      # add the pixel with no transformation
+      # add 15 if the value is between the provided
+      # limits. Then add it to the new output image, 
+      # otherwise add the pixel with no transformation
       if pixel <= lower_limit or pixel >= upper_limit:
         im3[i,j] = pixel
       else:
@@ -107,7 +105,7 @@ def guided_args():
   
   # Get the lower limit integer
   while True:
-    lower_lim = input("Enter an integer for the lower limit: ")
+    lower_lim = input("Enter an integer between 0-255 for the lower limit: ")
     if check_is_int(lower_lim):
       args.append(int(lower_lim))
       break
@@ -116,7 +114,7 @@ def guided_args():
 
   # Get the upper limit integer
   while True:
-    upper_lim = input("Enter an integer for the upper limit: ")
+    upper_lim = input("Enter an integer between 0-255 for the upper limit: ")
     if check_is_int(upper_lim):
       args.append(int(upper_lim))
       break
@@ -130,7 +128,6 @@ def guided_args():
 def inline_args_mode(args):
   # Check first (second in array) argument for being a valid path
   if not check_is_path(args[1]):
-    print(args)
     print("\nThe provided filepath is not valid.")
     exit()
 
@@ -146,16 +143,18 @@ def main():
   args = sys.argv
   num_args = len(args)
 
+  # We check for 1 or 4 args because this python file is arg[0] in the command
   if num_args == 4:
     inline_args_mode(args)
   elif num_args == 1:
     guided_args()
   else:
     print("\nThe program expects exactly 0 or 3 arguments.", \
-    "\nNo arguments will start guided use.\nArg 1: The path to", \
-    " the image for processing.\nArg 2: The lower limit, as an integer," \
-    " for the piecewise linear mapping.", \
-      "\nArg 3: The upper limit, as an integer, for the piecewise linear mapping.")
+    "\nProviding no arguments will start guided use mode. Otherwise, provide:",
+    "\nArg 1: The path to the image for processing.",
+    "\nArg 2: The lower limit, as an integer, for the piecewise linear mapping.", \
+    "\nArg 3: The upper limit, as an integer, for the piecewise linear mapping.")
+    
     exit()
 
 main()
