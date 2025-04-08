@@ -35,6 +35,13 @@ def check_is_int(i):
   except:
     return False
 
+# Checks that value is in the range of 0 to 255
+def check_in_range(i):
+  if i >= 0 and i <= 255:
+    return True
+  else:
+    return False
+
 # Outputs error message if the incorrect input
 # is not 'q' or 'Q'. Exits if the input is 'q' or 'Q' 
 def check_for_exit(s, CHECK_TYPE):
@@ -48,7 +55,9 @@ def check_for_exit(s, CHECK_TYPE):
   else:
     print("Invalid ", text_insert, " Entered.  Please enter a valid ", text_insert, " or enter 'q' to quit.")
     return
+# END REGION
   
+# REGION: Primary functions
 # Function to apply the piecewise linear function to the given image
 def piecewise_func(args):
   filepath = args[0]
@@ -106,7 +115,7 @@ def guided_args():
   # Get the lower limit integer
   while True:
     lower_lim = input("Enter an integer between 0-255 for the lower limit: ")
-    if check_is_int(lower_lim):
+    if check_is_int(lower_lim) and check_in_range(int(lower_lim)):
       args.append(int(lower_lim))
       break
     else:
@@ -115,7 +124,7 @@ def guided_args():
   # Get the upper limit integer
   while True:
     upper_lim = input("Enter an integer between 0-255 for the upper limit: ")
-    if check_is_int(upper_lim):
+    if check_is_int(upper_lim) and check_in_range(int(upper_lim)):
       args.append(int(upper_lim))
       break
     else:
@@ -130,16 +139,24 @@ def inline_args_mode(args):
   if not check_is_path(args[1]):
     print("\nThe provided filepath is not valid.")
     exit()
+  else: 
+    filepath = args[1]
 
   # check that args 3 and 4 are integers
   if check_is_int(args[2]) and check_is_int(args[3]):
-    args = [args[1], int(args[2]), int(args[3])]
-    piecewise_func(args)
-  else:
-    print("\nThe limits of the function are not valid integers.")
-    exit()
+    upper_lim = int(args[3])
+    lower_lim = int(args[2])
+    # Check that integers are in the correct range
+    if check_in_range(upper_lim) and check_in_range(lower_lim):
+      # Everything is validated, call the gray scale transform
+      args = [filepath, lower_lim, upper_lim]
+      piecewise_func(args)
+    else:
+      print("\nThe limits of the function are not valid integers, or it is outside the range of 0-255.")
+      exit()
 
 def main():
+  # Get all arguments passed in via command line
   args = sys.argv
   num_args = len(args)
 
@@ -156,5 +173,7 @@ def main():
     "\nArg 3: The upper limit, as an integer, for the piecewise linear mapping.")
     
     exit()
+# END REGION
 
+# Start the program
 main()
