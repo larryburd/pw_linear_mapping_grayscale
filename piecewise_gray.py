@@ -12,13 +12,12 @@
 
 import sys
 import os.path
-from enum import Enum
 import cv2 as cv
 import numpy as np
 
 # REGION: Helper functions
 # Enum for argument types
-class checkType:
+class checkType():
   PATH = 1
   UPPERLIM = 2
   LOWERLIM = 3
