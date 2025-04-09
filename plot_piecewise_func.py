@@ -8,16 +8,15 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from enum import Enum
 
 ARG_NAMES = ['r1', 'r2', 's1', 's2']
-
-arg_values = {
+arg_values = { # will be filled with user input
   'r1': 0,
   'r2': 0,
   's1': 0,
   's2': 0
 }
+slopes = [0,0,0] # Filled based on values input into arg_values
 
 # Validate input section
 def check_is_int(i):
@@ -27,7 +26,6 @@ def check_is_int(i):
   except:
     return False
 
-# Checks that value is in the range of 0 to 255
 def check_in_range(i):
   if i >= 0 and i <= 255:
     return True
@@ -35,7 +33,7 @@ def check_in_range(i):
     return False
 
 # Get threshold values
-def get_thresholds():
+def get_thresholds_input():
   num_input = 4
   i = 0
 
@@ -48,11 +46,12 @@ def get_thresholds():
       print("The supplied input does not conform to the parameters of an int between 0 and 255.  Please, try again.")
       continue
 
+# Caluculates the slopes for the 3 segments in the piecewise function
 def get_slopes():
-  slope_a = arg_values['s1'] / arg_values['r1']
-  slope_b = (arg_values['s2'] - arg_values['s1']) / (arg_values['r2'] - arg_values['r1'])
-  slope_c = (255 - arg_values['s2']) / (255 - arg_values['r2'])
-  return [slope_a, slope_b, slope_c]
+  slopes[0]= (arg_values['s1'] / arg_values['r1'])
+  slopes[1]= (arg_values['s2'] - arg_values['s1']) / (arg_values['r2'] - arg_values['r1'])
+  slopes[2] = (255 - arg_values['s2']) / (255 - arg_values['r2'])
+  
 
 def print_plot(img1, img2):
   xpoints = img1
@@ -62,8 +61,8 @@ def print_plot(img1, img2):
   
 
 def piecewise_func(pix_val:int):
-  slopes = get_slopes()
-
+  # Perform a seperate linear equation based on whcih "bucket"
+  # the pixel value falls into. 
   if (0 <= pix_val and pix_val <= arg_values['r1']):
     return slopes[0] * pix_val
   elif (arg_values['r1'] < pix_val and pix_val <= arg_values['r2']):
@@ -73,12 +72,13 @@ def piecewise_func(pix_val:int):
 
 def main():
   orig_img = np.arange(256)
-  linear_func = np.vectorize(piecewise_func)
+  apply_linear_func = np.vectorize(piecewise_func)
 
-  get_thresholds()
+  get_thresholds_input()
   
-  new_img = linear_func(orig_img)
-  print(len(new_img))
+  get_slopes()
+
+  new_img = apply_linear_func(orig_img)
 
   print_plot(orig_img, new_img)
 
