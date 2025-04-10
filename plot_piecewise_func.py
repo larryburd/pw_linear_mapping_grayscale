@@ -54,9 +54,23 @@ def get_slopes():
   
 
 def print_plot(img1, img2):
-  xpoints = img1
-  ypoints = img2
-  plt.plot(xpoints, ypoints)
+  xpoints = img2
+  ypoints = img1
+
+  fig = plt.figure()
+  pl = fig.add_subplot()
+  pl.set_title('Piecewise Linear Function Mapping', fontsize=15)
+  pl.set_xlabel('Input Pixel Value', fontsize=12)
+  pl.set_ylabel('Output Pixel Value', fontsize=12)
+  pl.text(10,190,f'Thresholds: \nr1: {arg_values["r1"]}\nr2: {arg_values["r2"]} \n' + \
+          f's1: {arg_values["s1"]}\ns2: {arg_values["s2"]}', bbox={
+            'facecolor': 'grey', 'alpha': 0.5, 'pad': 10})
+  pl.annotate(f'({arg_values["s1"]}, {arg_values["r1"]})', xy=(arg_values['s1'], arg_values['r1']), \
+              xytext=(arg_values['s1']+5, arg_values['r1']-20), fontsize=12)
+  pl.annotate(f'({arg_values["s2"]}, {arg_values["r2"]})', xy=(arg_values['s2'], arg_values['r2']), \
+              xytext=(arg_values['s2']+5, arg_values['r2']-20), fontsize=12)
+
+  pl.plot(xpoints, ypoints)
   plt.show()
   
 
